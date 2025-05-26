@@ -5,8 +5,12 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 const app = express();
+const path = require('path');
 app.use(cors());
 app.use(express.json());
+
+// Phục vụ static folder uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const authRouter = require('./routes/auth');
 app.use('/api/auth', authRouter);

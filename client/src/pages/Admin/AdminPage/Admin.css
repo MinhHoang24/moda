@@ -1,0 +1,10 @@
+.admin-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f8f9fa;
+}

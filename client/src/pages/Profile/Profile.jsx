@@ -40,7 +40,7 @@ const Profile = () => {
     e.preventDefault();
     setMessage('');
     try {
-      await axiosClient.put('/user/profile', user, {
+      await axiosClient.put('/users/profile', user, {
         headers: { Authorization: `Bearer ${userToken}` }
       });
       setMessage('Cập nhật thông tin thành công!');
@@ -58,7 +58,7 @@ const Profile = () => {
       <form onSubmit={handleSubmit}>
         <label>
           Họ tên:
-          <input type="text" name="name" value={user.name} onChange={handleChange} required />
+          <input type="text" name="name" value={user.name || ''} onChange={handleChange} required />
         </label>
         <label>
           Email:

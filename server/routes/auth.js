@@ -7,12 +7,12 @@ const jwt = require('jsonwebtoken');
 // Đăng ký
 router.post('/register', async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { name, email, password } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
-      userName,
+      name,
       email,
       password: hashedPassword,
     });

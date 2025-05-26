@@ -1,8 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const Product = require('../models/Product');
+const { verifyAdmin } = require('../middleware/auth'); // Sửa tên middleware đúng
 
-// GET /api/products? page, limit, name, minPrice, maxPrice, category, sortBy, sortOrder
+// Cấu hình multer lưu file upload ảnh
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // thư mục lưu ảnh
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// GET /api/products
 router.get('/', async (req, res) => {
   try {
     const {
@@ -12,8 +27,8 @@ router.get('/', async (req, res) => {
       minPrice,
       maxPrice,
       category,
-      sortBy = 'createdAt',    // Mặc định sắp xếp theo ngày tạo
-      sortOrder = 'desc'       // Mặc định giảm dần
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
     } = req.query;
 
     const filter = {};
@@ -34,14 +49,11 @@ router.get('/', async (req, res) => {
       filter.category = category;
     }
 
-    // Tạo object sort cho mongoose
     const sort = {};
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-    // Tính skip và limit
     const skip = (Number(page) - 1) * Number(limit);
 
-    // Truy vấn dữ liệu
     const products = await Product.find(filter)
       .sort(sort)
       .skip(skip)
@@ -60,34 +72,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Lấy tất cả sản phẩm
-router.get('/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
-    }
-    res.json(product);
-  } catch (err) {
-    console.error(err); // Thêm log lỗi
-    res.status(500).json({ message: 'Lỗi server' });
-  }
-});
-
-// Tạo mới sản phẩm
-router.post('/', async (req, res) => {
-  const { name, description, price, quantity, imageUrl } = req.body;
-  const product = new Product({ name, description, price, quantity, imageUrl });
-
-  try {
-    const newProduct = await product.save();
-    res.status(201).json(newProduct);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// Lấy chi tiết sản phẩm theo ID
+// GET chi tiết sản phẩm theo ID
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -98,10 +83,34 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Cập nhật sản phẩm theo ID
-router.put('/:id', async (req, res) => {
+// POST tạo mới sản phẩm, có hỗ trợ upload ảnh
+router.post('/', verifyAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, quantity, imageUrl } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || '';
+
+    const { name, description, price, quantity, category } = req.body;
+
+    const product = new Product({
+      name,
+      description,
+      price,
+      quantity,
+      category,
+      imageUrl,
+    });
+
+    const newProduct = await product.save();
+
+    res.status(201).json(newProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// PUT cập nhật sản phẩm theo ID
+router.put('/:id', verifyAdmin, async (req, res) => {
+  try {
+    const { name, description, price, quantity, imageUrl, category } = req.body;
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
 
@@ -110,6 +119,7 @@ router.put('/:id', async (req, res) => {
     product.price = price || product.price;
     product.quantity = quantity || product.quantity;
     product.imageUrl = imageUrl || product.imageUrl;
+    product.category = category || product.category;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
@@ -118,21 +128,16 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Xóa sản phẩm theo ID
-router.delete('/:id', async (req, res) => {
+// DELETE xóa sản phẩm theo ID
+router.delete('/:id', verifyAdmin, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
 
-    // Cách 1: dùng deleteOne trên document
     await product.deleteOne();
-
-    // Cách 2: hoặc dùng trực tiếp findByIdAndDelete
-    // await Product.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'Sản phẩm đã được xóa' });
   } catch (err) {
-    console.error('Lỗi khi xóa sản phẩm:', err);
     res.status(500).json({ message: 'Lỗi server khi xóa sản phẩm' });
   }
 });
