@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const Product = require('../models/Product');
-const { verifyAdmin } = require('../middleware/auth'); // Sửa tên middleware đúng
+const { verifyAdmin, verifyToken } = require('../middleware/auth'); // Sửa tên middleware đúng
 
 // Cấu hình multer lưu file upload ảnh
 const storage = multer.diskStorage({
@@ -84,18 +84,26 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST tạo mới sản phẩm, có hỗ trợ upload ảnh
-router.post('/', verifyAdmin, upload.single('image'), async (req, res) => {
+router.post('/', verifyToken, verifyAdmin, upload.single('image'), async (req, res) => {
   try {
+    console.log('req.body:', req.body);
+    console.log('req.file:', req.file);
+
+    // Kiểm tra bắt buộc trường
+    if (!req.body.name || !req.body.price) {
+      return res.status(400).json({ message: 'Thiếu tên hoặc giá sản phẩm' });
+    }
+
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || '';
 
     const { name, description, price, quantity, category } = req.body;
 
     const product = new Product({
-      name,
-      description,
-      price,
-      quantity,
-      category,
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      quantity: req.body.quantity,
+      category: req.body.category,
       imageUrl,
     });
 
@@ -103,6 +111,8 @@ router.post('/', verifyAdmin, upload.single('image'), async (req, res) => {
 
     res.status(201).json(newProduct);
   } catch (err) {
+    console.error('Lỗi tạo sản phẩm:', err);
+    res.status(500).json({ message: err.message });
     res.status(400).json({ message: err.message });
   }
 });

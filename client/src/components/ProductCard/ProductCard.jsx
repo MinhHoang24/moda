@@ -7,7 +7,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="product-card">
-      <img src={product.image} alt={product.name} />
+      <img src={`http://localhost:5000${product.imageUrl}`} alt={product.name} />
       <h3>{product.name}</h3>
       <p>{product.price} đ</p>
       <button onClick={() => addToCart(product)}>Thêm vào giỏ</button>

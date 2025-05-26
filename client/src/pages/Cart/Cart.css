@@ -60,3 +60,16 @@
 .clear-btn:hover {
   background-color: #5a6268;
 }
+
+.checkout-btn {
+  background-color: #28a745;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.checkout-btn:hover {
+  background-color: #1e7e34;
+}

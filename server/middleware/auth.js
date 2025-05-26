@@ -18,6 +18,9 @@ const verifyToken = (req, res, next) => {
 };
 
 const verifyAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Chưa xác thực token' });
+  }
   if (req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Chỉ admin mới được truy cập' });
   }

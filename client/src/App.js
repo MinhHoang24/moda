@@ -11,6 +11,7 @@ import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Cart from './pages/Cart/Cart';
 import Profile from './pages/Profile/Profile';
+import Checkout from './pages/Checkout/Checkout';
 
 import Admin from './pages/Admin/AdminPage/Admin';
 import AddProduct from './pages/Admin/AddProduct/AddProduct';
@@ -63,30 +64,25 @@ function App() {
             </Route>
 
           <Route path="/" element={<Home />} />
-          <Route
-            path="/products"
-            element={
+          <Route path="/products" element={
               <PrivateRoute>
                 <ProductList />
               </PrivateRoute>
             }
           />
-          <Route
-            path="/cart"
-            element={
+          <Route path="/cart" element={
               <PrivateRoute>
                 <Cart />
               </PrivateRoute>
             }
           />
-          <Route
-            path="/profile"
-            element={
+          <Route path="/profile" element={
               <PrivateRoute>
                 <Profile />
               </PrivateRoute>
             }
           />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
