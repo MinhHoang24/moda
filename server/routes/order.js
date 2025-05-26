@@ -5,6 +5,8 @@ const { verifyToken, verifyAdmin } = require('../middleware/auth');
 
 // Tạo đơn hàng mới (user đã login)
 router.post('/', verifyToken, async (req, res) => {
+  console.log('Body received:', req.body);
+  
   const { items, shippingAddress, paymentMethod } = req.body;
 
   if (!items || !shippingAddress || !paymentMethod) {

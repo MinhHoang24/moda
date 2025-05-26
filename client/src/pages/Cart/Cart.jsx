@@ -7,7 +7,7 @@ const Cart = () => {
   const { cartItems, removeFromCart, clearCart } = useContext(CartContext);
   const navigate = useNavigate();
 
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalPrice = (cartItems || []).reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleCheckout = () => {
     navigate('/checkout');  // Chuyển tới trang thanh toán

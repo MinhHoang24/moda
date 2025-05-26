@@ -48,7 +48,7 @@ router.get('/', verifyToken, verifyAdmin, async (req, res) => {
 router.put('/profile', verifyToken, async (req, res) => {
   try {
     const userId = req.user.id; // Lấy id user từ token
-    const { name, email } = req.body;
+    const { name, email, phone, address } = req.body;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
@@ -56,6 +56,8 @@ router.put('/profile', verifyToken, async (req, res) => {
     // Cập nhật các trường được phép thay đổi
     if (name) user.name = name;
     if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
 
     await user.save();
 

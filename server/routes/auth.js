@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 // Đăng ký
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, address } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -15,6 +15,8 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      phone,
+      address,
     });
 
     res.status(201).json({ message: 'Đăng ký thành công', user: newUser });

@@ -1,29 +1,51 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { AuthContext } from './AuthContext';
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  const { user } = useContext(AuthContext);
 
-  // Thêm sản phẩm vào giỏ
-  const addToCart = (product) => {
-    setCartItems(prevItems => {
-      const exist = prevItems.find(item => item._id === product._id);
-      if (exist) {
-        return prevItems.map(item =>
-          item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
-        );
+  const getCartFromStorage = useCallback(() => {
+    if (!user || !user._id) return [];
+    try {
+      const data = localStorage.getItem(`cartItems_${user._id}`);
+      if (!data || data === 'undefined') return [];
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
+  }, [user]);
+
+  const [cartItems, setCartItems] = useState(getCartFromStorage);
+
+  useEffect(() => {
+    setCartItems(getCartFromStorage());
+  }, [user, getCartFromStorage]);
+
+  useEffect(() => {
+    if (user && user._id) {
+      localStorage.setItem(`cartItems_${user._id}`, JSON.stringify(cartItems));
+    }
+  }, [cartItems, user]);
+
+  const addToCart = (productToAdd) => {
+    setCartItems((prevCart) => {
+      const index = prevCart.findIndex(item => item._id === productToAdd._id);
+      if (index !== -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[index].quantity = (updatedCart[index].quantity || 0) + (productToAdd.quantity || 1);
+        return updatedCart;
+      } else {
+        return [...prevCart, { ...productToAdd, quantity: productToAdd.quantity || 1 }];
       }
-      return [...prevItems, { ...product, quantity: 1 }];
     });
   };
 
-  // Xóa sản phẩm khỏi giỏ
   const removeFromCart = (productId) => {
-    setCartItems(prevItems => prevItems.filter(item => item._id !== productId));
+    setCartItems(prevCart => prevCart.filter(item => item._id !== productId));
   };
 
-  // Xóa hết giỏ hàng
   const clearCart = () => {
     setCartItems([]);
   };
