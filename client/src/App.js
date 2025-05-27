@@ -12,6 +12,7 @@ import Footer from './components/Footer/Footer';
 import Cart from './pages/Cart/Cart';
 import Profile from './pages/Profile/Profile';
 import Checkout from './pages/Checkout/Checkout';
+import UserOrderTracking from './pages/UserOrderTracking/UserOrderTracking';
 
 import Admin from './pages/Admin/AdminPage/Admin';
 import AddProduct from './pages/Admin/AddProduct/AddProduct';
@@ -45,6 +46,7 @@ function App() {
             <Route path="/admin/products" element={<ProductManagement />}/>
             <Route path="/admin/orders" element={<OrderManagement />}/>
             <Route path="/admin/users" element={<UserManagement />}/>
+
           </Route>
           {/* Route admin riêng, chỉ cho phép admin */}
           <Route
@@ -86,6 +88,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/orders/my-orders" element={<UserOrderTracking />}/>
+
         </Routes>
       </div>
       <Footer />

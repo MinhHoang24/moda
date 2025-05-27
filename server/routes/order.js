@@ -50,10 +50,22 @@ router.get('/my-orders', verifyToken, async (req, res) => {
 // Admin: lấy tất cả đơn hàng
 router.get('/', verifyToken, verifyAdmin, async (req, res) => {
   try {
-    const orders = await Order.find().populate('userId', 'userName email').sort({ createdAt: -1 });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const orders = await Order.find()
+      .populate('userId', 'name') // lấy name user
+      .select('userId totalAmount status createdAt'); // chọn các trường cần thiết
+
+    // Định dạng lại dữ liệu trả về frontend
+    const formattedOrders = orders.map(order => ({
+      _id: order._id,
+      name: order.userId?.name || 'N/A', // lấy tên user từ userId
+      createdAt: order.createdAt,
+      status: order.status,
+      totalPrice: order.totalAmount, // đổi tên cho frontend
+    }));
+
+    res.json(formattedOrders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

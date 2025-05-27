@@ -23,6 +23,7 @@ const Header = () => {
             <Link to="/products">Sản Phẩm</Link>
             <Link to="/cart">Giỏ Hàng</Link>
             <Link to="/profile">Trang Cá Nhân</Link>
+            <Link to="/orders/my-orders">Đơn hàng của bạn</Link>
         </nav>
         <nav className='header-nav-right'>
             {userToken ? (
