@@ -35,6 +35,25 @@ const UserManagement = () => {
     return new Date(dateStr).toLocaleDateString(undefined, options);
   };
 
+  // Hàm xử lý chỉnh sửa (ví dụ chuyển sang trang chỉnh sửa hoặc mở modal)
+  const handleEdit = (userId) => {
+    alert(`Chỉnh sửa user có ID: ${userId}`);
+    // TODO: Điều hướng hoặc mở modal chỉnh sửa user
+  };
+
+  // Hàm xử lý xóa user
+  const handleDelete = async (userId) => {
+    if (!window.confirm('Bạn có chắc muốn xóa người dùng này không?')) return;
+
+    try {
+      await axiosClient.delete(`/users/${userId}`);
+      setUsers(users.filter(u => u._id !== userId));
+    } catch (err) {
+      alert('Xóa người dùng thất bại.');
+    }
+  };
+
+
   if (loading) return <p>Đang tải danh sách người dùng...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
@@ -53,7 +72,10 @@ const UserManagement = () => {
             <th>Họ tên</th>
             <th>Email</th>
             <th>Vai trò</th>
+            <th>Số điện thoại</th>
+            <th>Địa chỉ</th>
             <th>Ngày tạo</th>
+            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
@@ -63,7 +85,23 @@ const UserManagement = () => {
                 <td>{u.name}</td>
                 <td>{u.email}</td>
                 <td>{u.role}</td>
+                <td>{u.phone}</td>
+                <td>{u.address}</td>
                 <td>{formatDate(u.createdAt)}</td>
+                <td>
+                  <button
+                    onClick={() => handleEdit(u._id)}
+                    style={{ marginRight: 8 }}
+                  >
+                    Chỉnh sửa
+                  </button>
+                  <button
+                    onClick={() => handleDelete(u._id)}
+                    style={{ color: 'red' }}
+                  >
+                    Xóa
+                  </button>
+                </td>
               </tr>
             ))
           ) : (

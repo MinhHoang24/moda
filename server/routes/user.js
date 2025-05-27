@@ -67,4 +67,25 @@ router.put('/profile', verifyToken, async (req, res) => {
   }
 });
 
+// Thêm route xóa user (chỉ admin được phép)
+router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Kiểm tra user tồn tại không
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy user cần xóa' });
+    }
+
+    // Xóa user
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: 'Xóa user thành công' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 module.exports = router;
